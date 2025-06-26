@@ -1,0 +1,415 @@
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+  <h1 class="h2 fw-bold">{{.Title}}</h1>
+  <a href="/dashboard/invitations" class="btn btn-outline-secondary d-flex align-items-center gap-2">
+    <i class="bi bi-arrow-left"></i> Listeye Dön
+  </a>
+</div>
+
+<div class="card card-glass mb-4">
+  <div class="card-body">
+    <form method="POST" action="/dashboard/invitations/create" id="invitation-form" enctype="multipart/form-data">
+      <input type="hidden" name="csrf_token" value="{{ .CsrfToken }}">
+
+      <div class="mb-4">
+        <label for="categorySelect" class="form-label fw-bold fs-5">Kategori <span class="text-danger">*</span></label>
+        <select id="categorySelect" name="category_id" class="form-select" required>
+          <option value="">Lütfen Bir Kategori Seçiniz...</option>
+          {{range .Categories.Data}}
+            <option value="{{.ID}}" data-template="{{.Template}}" {{if $.FormData}}{{if eq .ID $.FormData.CategoryID}}selected{{end}}{{end}}>{{.Name}}</option>
+          {{end}}
+        </select>
+      </div>
+
+      <!-- Kategori seçildiğinde görünecek ana konteyner -->
+      <div id="invitationRow" class="d-none">
+
+        <div id="titleRow" class="mb-4 d-none">
+          <label class="form-label">Başlık <span class="text-danger">*</span></label>
+          <input type="text" name="detail[title]" class="form-control" value="{{if .FormData}}{{.FormData.Detail.Title}}{{end}}">
+        </div>
+
+        <div id="personRow" class="mb-4 d-none">
+          <label class="form-label">Kimin Adına? (Ad Soyad) <span class="text-danger">*</span></label>
+          <input type="text" name="detail[person]" class="form-control" value="{{if .FormData}}{{.FormData.Detail.Person}}{{end}}">
+        </div>
+
+        <div id="familyRow" class="row d-none">
+          <!-- Anne Bilgileri -->
+          <div class="col-md-4 mb-3">
+            <label class="form-label">Anne Yaşıyor mu?</label>
+            <select name="detail[is_mother_live]" class="form-select">
+              <option value="">Seçiniz</option>
+              <option value="true" {{if .FormData}}{{if .FormData.Detail.IsMotherLive}}selected{{end}}{{end}}>Evet</option>
+              <option value="false" {{if .FormData}}{{if not .FormData.Detail.IsMotherLive}}selected{{end}}{{end}}>Hayır</option>
+            </select>
+          </div>
+          <div class="col-md-4 mb-3">
+            <label class="form-label">Anne Adı <span class="text-danger">*</span></label>
+            <input type="text" name="detail[mother_name]" class="form-control" value="{{if .FormData}}{{.FormData.Detail.MotherName}}{{end}}">
+          </div>
+          <div class="col-md-4 mb-3">
+            <label class="form-label">Anne Soyadı <span class="text-danger">*</span></label>
+            <input type="text" name="detail[mother_surname]" class="form-control" value="{{if .FormData}}{{.FormData.Detail.MotherSurname}}{{end}}">
+          </div>
+          
+          <!-- Baba Bilgileri -->
+          <div class="col-md-4 mb-3">
+            <label class="form-label">Baba Yaşıyor mu?</label>
+            <select name="detail[is_father_live]" class="form-select">
+              <option value="">Seçiniz</option>
+              <option value="true" {{if .FormData}}{{if .FormData.Detail.IsFatherLive}}selected{{end}}{{end}}>Evet</option>
+              <option value="false" {{if .FormData}}{{if not .FormData.Detail.IsFatherLive}}selected{{end}}{{end}}>Hayır</option>
+            </select>
+          </div>
+          <div class="col-md-4 mb-3">
+            <label class="form-label">Baba Adı <span class="text-danger">*</span></label>
+            <input type="text" name="detail[father_name]" class="form-control" value="{{if .FormData}}{{.FormData.Detail.FatherName}}{{end}}">
+          </div>
+          <div class="col-md-4 mb-3">
+            <label class="form-label">Baba Soyadı <span class="text-danger">*</span></label>
+            <input type="text" name="detail[father_surname]" class="form-control" value="{{if .FormData}}{{.FormData.Detail.FatherSurname}}{{end}}">
+          </div>
+        </div>
+
+        <div id="weddingRow" class="row d-none">
+          <!-- Gelin Bilgileri -->
+          <div class="col-md-6">
+            <h5 class="fw-bold mb-3">Gelin Bilgileri</h5>
+            <div class="row">
+              <div class="col-md-6 mb-3">
+                <label class="form-label">Adı <span class="text-danger">*</span></label>
+                <input type="text" name="detail[bride_name]" class="form-control" value="{{if .FormData}}{{.FormData.Detail.BrideName}}{{end}}">
+              </div>
+              <div class="col-md-6 mb-3">
+                <label class="form-label">Soyadı <span class="text-danger">*</span></label>
+                <input type="text" name="detail[bride_surname]" class="form-control" value="{{if .FormData}}{{.FormData.Detail.BrideSurname}}{{end}}">
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="col-md-4 mb-3">
+                <label class="form-label">Annesi Yaşıyor mu?</label>
+                <select name="detail[is_bride_mother_live]" class="form-select">
+                  <option value="">Seçiniz</option>
+                  <option value="true" {{if .FormData}}{{if .FormData.Detail.IsBrideMotherLive}}selected{{end}}{{end}}>Evet</option>
+                  <option value="false" {{if .FormData}}{{if not .FormData.Detail.IsBrideMotherLive}}selected{{end}}{{end}}>Hayır</option>
+                </select>
+              </div>
+              <div class="col-md-4 mb-3">
+                <label class="form-label">Annesinin Adı</label>
+                <input type="text" name="detail[bride_mother_name]" class="form-control" value="{{if .FormData}}{{.FormData.Detail.BrideMotherName}}{{end}}">
+              </div>
+              <div class="col-md-4 mb-3">
+                <label class="form-label">Annesinin Soyadı</label>
+                <input type="text" name="detail[bride_mother_surname]" class="form-control" value="{{if .FormData}}{{.FormData.Detail.BrideMotherSurname}}{{end}}">
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="col-md-4 mb-3">
+                <label class="form-label">Babası Yaşıyor mu?</label>
+                <select name="detail[is_bride_father_live]" class="form-select">
+                  <option value="">Seçiniz</option>
+                  <option value="true" {{if .FormData}}{{if .FormData.Detail.IsBrideFatherLive}}selected{{end}}{{end}}>Evet</option>
+                  <option value="false" {{if .FormData}}{{if not .FormData.Detail.IsBrideFatherLive}}selected{{end}}{{end}}>Hayır</option>
+                </select>
+              </div>
+              <div class="col-md-4 mb-3">
+                <label class="form-label">Babasının Adı</label>
+                <input type="text" name="detail[bride_father_name]" class="form-control" value="{{if .FormData}}{{.FormData.Detail.BrideFatherName}}{{end}}">
+              </div>
+              <div class="col-md-4 mb-3">
+                <label class="form-label">Babasının Soyadı</label>
+                <input type="text" name="detail[bride_father_surname]" class="form-control" value="{{if .FormData}}{{.FormData.Detail.BrideFatherSurname}}{{end}}">
+              </div>
+            </div>
+          </div>
+
+          <!-- Damat Bilgileri -->
+          <div class="col-md-6">
+            <h5 class="fw-bold mb-3">Damat Bilgileri</h5>
+            <div class="row">
+              <div class="col-md-6 mb-3">
+                <label class="form-label">Adı <span class="text-danger">*</span></label>
+                <input type="text" name="detail[groom_name]" class="form-control" value="{{if .FormData}}{{.FormData.Detail.GroomName}}{{end}}">
+              </div>
+              <div class="col-md-6 mb-3">
+                <label class="form-label">Soyadı <span class="text-danger">*</span></label>
+                <input type="text" name="detail[groom_surname]" class="form-control" value="{{if .FormData}}{{.FormData.Detail.GroomSurname}}{{end}}">
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="col-md-4 mb-3">
+                <label class="form-label">Annesi Yaşıyor mu?</label>
+                <select name="detail[is_groom_mother_live]" class="form-select">
+                  <option value="">Seçiniz</option>
+                  <option value="true" {{if .FormData}}{{if .FormData.Detail.IsGroomMotherLive}}selected{{end}}{{end}}>Evet</option>
+                  <option value="false" {{if .FormData}}{{if not .FormData.Detail.IsGroomMotherLive}}selected{{end}}{{end}}>Hayır</option>
+                </select>
+              </div>
+              <div class="col-md-4 mb-3">
+                <label class="form-label">Annesinin Adı</label>
+                <input type="text" name="detail[groom_mother_name]" class="form-control" value="{{if .FormData}}{{.FormData.Detail.GroomMotherName}}{{end}}">
+              </div>
+              <div class="col-md-4 mb-3">
+                <label class="form-label">Annesinin Soyadı</label>
+                <input type="text" name="detail[groom_mother_surname]" class="form-control" value="{{if .FormData}}{{.FormData.Detail.GroomMotherSurname}}{{end}}">
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="col-md-4 mb-3">
+                <label class="form-label">Babası Yaşıyor mu?</label>
+                <select name="detail[is_groom_father_live]" class="form-select">
+                  <option value="">Seçiniz</option>
+                  <option value="true" {{if .FormData}}{{if .FormData.Detail.IsGroomFatherLive}}selected{{end}}{{end}}>Evet</option>
+                  <option value="false" {{if .FormData}}{{if not .FormData.Detail.IsGroomFatherLive}}selected{{end}}{{end}}>Hayır</option>
+                </select>
+              </div>
+              <div class="col-md-4 mb-3">
+                <label class="form-label">Babasının Adı</label>
+                <input type="text" name="detail[groom_father_name]" class="form-control" value="{{if .FormData}}{{.FormData.Detail.GroomFatherName}}{{end}}">
+              </div>
+              <div class="col-md-4 mb-3">
+                <label class="form-label">Babasının Soyadı</label>
+                <input type="text" name="detail[groom_father_surname]" class="form-control" value="{{if .FormData}}{{.FormData.Detail.GroomFatherSurname}}{{end}}">
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div id="mainRow" class="d-none">
+          <hr class="my-4">
+          
+          <div class="mb-3">
+            <label class="form-label">(RSVP/LCV) Katılımcılar bilgi versin mi? <span class="text-danger">*</span></label>
+            <select name="is_rsvp" class="form-select" required>
+              <option value="false" {{if .FormData}}{{if not .FormData.IsRsvp}}selected{{end}}{{end}}>Hayır</option>
+              <option value="true" {{if .FormData}}{{if .FormData.IsRsvp}}selected{{end}}{{end}}>Evet</option>
+            </select>
+          </div>
+          
+          <div class="mb-3">
+            <label class="form-label">Davetiye Metni <span class="text-danger">*</span></label>
+            <textarea name="description" class="form-control" rows="5" required>{{if .FormData}}{{.FormData.Description}}{{end}}</textarea>
+          </div>
+          
+          <div class="row mb-3">
+            <div class="col-md-6">
+              <label class="form-label">Tarih <span class="text-danger">*</span></label>
+              <input type="date" name="date" class="form-control" value="{{if .FormData}}{{.FormData.Date.Format "2006-01-02"}}{{end}}" required>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Saat <span class="text-danger">*</span></label>
+              <input type="time" name="time" class="form-control" value="{{if .FormData}}{{.FormData.Time.Format "15:04"}}{{end}}" required>
+            </div>
+          </div>
+          
+          <div class="mb-3">
+            <label class="form-label">Not (İsteğe Bağlı)</label>
+            <textarea name="note" class="form-control" rows="3">{{if .FormData}}{{.FormData.Note}}{{end}}</textarea>
+          </div>
+          
+          <div class="mb-3">
+            <label class="form-label">İletişim Numarası <span class="text-danger">*</span></label>
+            <input type="tel" name="telephone" id="telephone" class="form-control" value="{{if .FormData}}{{.FormData.Telephone}}{{end}}" required>
+          </div>
+          
+          <div id="linkRow" class="mb-3 d-none">
+            <label class="form-label">Online Davetiye Linki <span class="text-danger">*</span></label>
+            <input type="url" name="link" id="link_input" class="form-control" value="{{if .FormData}}{{.FormData.Link}}{{end}}">
+          </div>
+          
+          <div id="locationRow">
+            <div class="mb-3">
+              <label class="form-label">Mekan Adı <span class="text-danger">*</span></label>
+              <input type="text" name="venue" id="venue_input" class="form-control" value="{{if .FormData}}{{.FormData.Venue}}{{end}}">
+            </div>
+            
+            <div class="mb-3">
+              <label class="form-label">Adres <span class="text-danger">*</span></label>
+              <textarea name="address" id="address_input" class="form-control" rows="3">{{if .FormData}}{{.FormData.Address}}{{end}}</textarea>
+            </div>
+            
+            <div class="mb-3">
+              <label class="form-label">Konum <span class="text-danger">*</span></label>
+              <div class="d-grid gap-2">
+                <button type="button" class="btn btn-success" id="getEmbedCode">
+                  <i class="bi bi-geo-alt-fill"></i> Konumu Kaydet
+                </button>
+              </div>
+              <input type="hidden" name="location" id="location" value="{{if .FormData}}{{.FormData.Location}}{{end}}">
+              <div id="mapContainer" class="mt-3 border rounded overflow-hidden d-none">
+                <iframe id="mapFrame" style="width:100%; height:400px; border:none;" loading="lazy"></iframe>
+              </div>
+            </div>
+          </div>
+          
+          <div class="mb-3">
+            <label class="form-label">Davetiye Resmi <span class="text-danger">*</span></label>
+            <div class="alert alert-info">
+              <i class="bi bi-info-circle-fill"></i> Lütfen dikey (portrait) formatta, 1080x1920 piksel boyutlarında ve 3MB'tan küçük bir resim yükleyin.
+            </div>
+            <input type="file" name="image" id="image" class="form-control" accept="image/*" required>
+          </div>
+        </div>
+
+        <div class="d-grid gap-2 mt-4">
+          <button type="submit" id="saveButton" class="btn btn-primary btn-lg d-none">
+            <i class="bi bi-save-fill"></i> Davetiyeyi Kaydet
+          </button>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Resim Önizleme Modalı -->
+<div class="modal fade" id="imagePreviewModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Resim Önizleme</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body text-center">
+        <img id="previewImage" src="" alt="Resim Önizleme" class="img-fluid rounded">
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" id="changeImageBtn">
+          <i class="bi bi-arrow-repeat"></i> Resmi Değiştir
+        </button>
+        <button type="button" class="btn btn-primary" data-bs-dismiss="modal">
+          <i class="bi bi-check-circle-fill"></i> Onayla
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+<script src="/js/jquery-3.7.1.min.js"></script>
+<script src="/js/jquery.inputmask.min.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    $('#telephone').inputmask("09999999999");
+    // Kategori değişiminde alanları göster/gizle
+    const categorySelect = document.getElementById('categorySelect');
+    const toggleFields = () => {
+        const selectedOption = categorySelect.selectedOptions[0];
+        const template = selectedOption?.dataset.template;
+        
+        // Tüm alanları gizle
+        document.querySelectorAll('#invitationRow > div[id$="Row"]').forEach(el => {
+            el.classList.add('d-none');
+        });
+        
+        if (template) {
+            document.getElementById('invitationRow').classList.remove('d-none');
+            document.getElementById('mainRow').classList.remove('d-none');
+            document.getElementById('saveButton').classList.remove('d-none');
+            
+            // Template'e göre ilgili alanları göster
+            switch(template) {
+                case 'title':
+                    document.getElementById('titleRow').classList.remove('d-none');
+                    break;
+                case 'online':
+                    document.getElementById('titleRow').classList.remove('d-none');
+                    document.getElementById('linkRow').classList.remove('d-none');
+                    document.getElementById('locationRow').classList.add('d-none');
+                    break;
+                case 'person':
+                    document.getElementById('personRow').classList.remove('d-none');
+                    break;
+                case 'person-family':
+                    document.getElementById('personRow').classList.remove('d-none');
+                    document.getElementById('familyRow').classList.remove('d-none');
+                    break;
+                case 'wedding':
+                    document.getElementById('weddingRow').classList.remove('d-none');
+                    break;
+            }
+        } else {
+            document.getElementById('invitationRow').classList.add('d-none');
+            document.getElementById('saveButton').classList.add('d-none');
+        }
+    };
+    
+    categorySelect.addEventListener('change', toggleFields);
+    if (categorySelect.value) toggleFields();
+    
+    // Google Haritalar embed kodu oluşturma
+    document.getElementById('getEmbedCode').addEventListener('click', function() {
+        const venue = document.getElementById('venue_input').value.trim();
+        const address = document.getElementById('address_input').value.trim();
+        
+        if (!venue || !address) {
+            alert('Lütfen mekan adı ve adres bilgilerini giriniz!');
+            return;
+        }
+        
+        const query = encodeURIComponent(`${venue} ${address}`);
+        const embedUrl = `https://www.google.com/maps?q=${query}&output=embed`;
+        
+        document.getElementById('location').value = embedUrl;
+        document.getElementById('mapFrame').src = embedUrl;
+        document.getElementById('mapContainer').classList.remove('d-none');
+    });
+    
+    // Resim önizleme işlemleri
+    const imageModal = new bootstrap.Modal('#imagePreviewModal');
+    const imageInput = document.getElementById('image');
+    const previewImage = document.getElementById('previewImage');
+    
+    imageInput.addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        if (!file) return;
+        
+        // Boyut kontrolü (3MB)
+        if (file.size > 3 * 1024 * 1024) {
+            alert('Resim boyutu 3MB\'dan büyük olamaz!');
+            this.value = '';
+            return;
+        }
+        
+        // Önizleme göster
+        previewImage.src = URL.createObjectURL(file);
+        imageModal.show();
+    });
+    
+    // Resmi değiştir butonu
+    document.getElementById('changeImageBtn').addEventListener('click', function() {
+        imageInput.value = '';
+        imageModal.hide();
+    });
+    
+    // Form gönderim validasyonu
+    document.getElementById('invitation-form').addEventListener('submit', function(e) {
+        const selectedOption = categorySelect.selectedOptions[0];
+        const template = selectedOption?.dataset.template;
+        const errors = [];
+        
+        // Online davetiyeler için link kontrolü
+        if (template === 'online' && !document.getElementById('link_input').value) {
+            errors.push('Online davetiye için link bilgisi zorunludur.');
+        } 
+        // Diğer davetiyeler için konum bilgisi kontrolü
+        else if (template !== 'online') {
+            if (!document.getElementById('venue_input').value) {
+                errors.push('Mekan adı zorunludur.');
+            }
+            if (!document.getElementById('address_input').value) {
+                errors.push('Adres bilgisi zorunludur.');
+            }
+            if (!document.getElementById('location').value) {
+                errors.push('Lütfen konum bilgisini kaydedin (Konumu Kaydet butonuna basın).');
+            }
+        }
+        
+        if (errors.length > 0) {
+            e.preventDefault();
+            alert(errors.join('\n'));
+        }
+    });
+});
+</script>
